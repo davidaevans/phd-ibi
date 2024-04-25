@@ -1,0 +1,11 @@
+.vscode
+.DS_Store
+**/*.o
+code/mc/data
+code/mc/source/mc
+code/rdf/data
+code/rdf/source/rdf
+run/*
+!run/scripts
+!run/defaults
+!run/ibi.sh

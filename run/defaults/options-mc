@@ -1,0 +1,6 @@
+pbc 1
+equilibrate 500
+diameter 1
+dump 10
+seed -1
+sweeps 100
