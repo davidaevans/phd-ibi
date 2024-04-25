@@ -72,7 +72,7 @@ int main()
 
    printf ("Beginning main run\n\n");
    fflush (stdout);
-   simulate(npart, box, diameter, equilibrate, dump, 0,
+   simulate(npart, box, diameter, nsweeps, dump, 0,
         trans, periodic, particle, potential, kt, max_potential_distance, dr, potential_length);
    printf("Acceptance Ratios:\n");
    printf("acc: %ld\n", trans.acc);
