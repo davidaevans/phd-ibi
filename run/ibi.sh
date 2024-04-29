@@ -127,7 +127,7 @@ echo
 echo
 
 echo "Calculating box size to use for MC simulations"
-BOXSIZE=$(awk -v rho=${DENSITY} -v n=${NPART} 'BEGIN{printf("%d",sqrt(n/rho))}')
+BOXSIZE=$(awk -v rho=${DENSITY} -v n=${NPART} 'BEGIN{printf("%lf",sqrt(n/rho))}')
 echo "Calculated box size = " ${BOXSIZE}
 
 
