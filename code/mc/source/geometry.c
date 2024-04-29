@@ -56,7 +56,7 @@ double interpolate(double r1, double r2, double v1, double v2, double r_target)
    grad = (v2-v1)/(r2-r1);
 
    val = v1 + (r_target-r1) * grad;
-   
+   // printf("r: %lf E: %lf\n", r_target, val);
    return val;
 }
 

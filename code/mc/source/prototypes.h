@@ -193,7 +193,7 @@ void load_potential(long potential_length, double **potential, FILE *potential_f
 void generate_config(struct disc *particle, struct vector box, long npart, double diameter);
 
 void simulate(long npart, struct vector box, double diameter,
-    long nsweeps, long dump, long adjust, struct disp trans, long periodic,
+    long nsweeps, long dump, long adjust, struct disp *trans, long periodic,
     struct disc *particle, double **potential, double kt, double max_potential_distance, double dr, long potential_length);
 
 long getcell(struct vector pos, long ncellx, long ncelly, struct vector box);

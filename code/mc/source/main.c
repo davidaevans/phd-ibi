@@ -21,7 +21,6 @@ int main()
     struct disp trans;         /* Maximum (unscaled) translation step */
     struct disc *particle;      /* Configuration of entire system */
     struct vector box;          /* Simulation cell dimensions */
-    FILE *equilfile;            /* File to write equilibrated config too */
     FILE *potential_file = NULL;
 
     // equilfile = fopen("config.equil", "w+");
@@ -60,24 +59,18 @@ int main()
 
     printf ("Beginning cell set-up and equilibration\n\n");
     simulate(npart, box, diameter, equilibrate, 0, adjust,
-        trans, periodic, particle, potential, kt, max_potential_distance, dr, potential_length);
+        &trans, periodic, particle, potential, kt, max_potential_distance, dr, potential_length);
 
     printf ("Equilibrated step size: %.6le\n", trans.mx);
-    
-    // printf ("Writing equilibrated configuration to config.equil\n");
-//     dumpconfigs_equil(equilfile, particle, box, npart, 0, trans);
-//     printf ("\n");
-//     fclose(equilfile);
 
-
-   printf ("Beginning main run\n\n");
-   fflush (stdout);
-   simulate(npart, box, diameter, nsweeps, dump, 0,
-        trans, periodic, particle, potential, kt, max_potential_distance, dr, potential_length);
-   printf("Acceptance Ratios:\n");
-   printf("acc: %ld\n", trans.acc);
-   printf("rej: %ld\n", trans.rej);
-   printf("acc - species 1: %lf\n", RATIO(trans));
+    printf ("Beginning main run\n\n");
+    fflush (stdout);
+    simulate(npart, box, diameter, nsweeps, dump, 0,
+        &trans, periodic, particle, potential, kt, max_potential_distance, dr, potential_length);
+    printf("\n\nTrial Move Statistics:\n");
+    printf("Moves accepted: %ld\n", trans.acc);
+    printf("Moves rejected: %ld\n", trans.rej);
+    printf("Acceptance ratio: %lf\n\n", RATIO(trans));
     printf ("\nDone\n\n");
 
     return 0;

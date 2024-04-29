@@ -4,11 +4,10 @@
 /*..............................................................................*/
 
 void simulate(long npart, struct vector box, double diameter,
-   long nsweeps, long dump, long adjust, struct disp trans, long periodic,
+   long nsweeps, long dump, long adjust, struct disp *trans, long periodic,
    struct disc *particle, double **potential, double kt, double max_potential_distance, double dr, long potential_length)
 {
    static double denom;
-   static double longer;           /* Length of the longer of the two disc species */
    long cell;           /* Cell-list cell of a given particle */
    long i, j;
    static long ncellx, ncelly;     /* Number of cell-list cells in each direction */
@@ -143,9 +142,7 @@ void simulate(long npart, struct vector box, double diameter,
    next_adjust = adjust;
    next_frame = dump;
 
-   for (i=0; i<=1; i++) {
-      trans.acc = trans.rej = 0.0;
-   }
+   trans->acc = trans->rej = 0.0;
 
    if (dump > 0) {
       dumpfile = fopen(dumpfilename, "a");
@@ -166,8 +163,8 @@ void simulate(long npart, struct vector box, double diameter,
          vold = particle[testp].pos;
          
          oldcell = particle[testp].cell;
-         particle[testp].pos.x += (ran2(&seed) - 0.5) * 2.0 * trans.mx + box.x;
-         particle[testp].pos.y += (ran2(&seed) - 0.5) * 2.0 * trans.mx + box.y;
+         particle[testp].pos.x += (ran2(&seed) - 0.5) * 2.0 * trans->mx + box.x;
+         particle[testp].pos.y += (ran2(&seed) - 0.5) * 2.0 * trans->mx + box.y;
 
          particle[testp].pos.x = fmod(particle[testp].pos.x, box.x);
          particle[testp].pos.y = fmod(particle[testp].pos.y, box.y);
@@ -205,7 +202,7 @@ void simulate(long npart, struct vector box, double diameter,
          if (!accept_move(vold, oldcell, particle, box, npart, testp, cfirst, neighbour, kt, potential, potential_length, max_potential_distance, dr) ) {
             /* Reject due to overlap */
             particle[testp].pos = vold;
-            trans.rej++;
+            trans->rej++;
             if (cell != oldcell) {
                /* Remove particle from trial cell, given that it must be the first one in the cell */
                if (particle[testp].next) (particle[testp].next)->prev = NULL;
@@ -219,7 +216,7 @@ void simulate(long npart, struct vector box, double diameter,
             }
          } else {
             /* Accept */
-            trans.acc++;
+            trans->acc++;            
          }
          
 
@@ -227,10 +224,9 @@ void simulate(long npart, struct vector box, double diameter,
 
       /*=== Adjust step sizes during equilibration ===*/
       if (sweep == next_adjust) {
-         maxstep(&trans, longer, 0.001);
+         maxstep(trans, diameter, 0.001);
          next_adjust += adjust;
       }
-
 
       /* Writing of movie frame */
       if (sweep == next_frame) {
@@ -255,15 +251,15 @@ acceptance counters to zero.
 void maxstep(struct disp *x, double hi, double lo)
 {
    if (RATIO(*x) < 0.5) {
-      (*x).mx *= 0.95;
+      (x)->mx *= 0.95;
    } else {
-      (*x).mx *= 1.05;
+      (x)->mx *= 1.05;
    }
  
-   if ( (*x).mx > hi ) (*x).mx = hi;
-   if ( (*x).mx < lo ) (*x).mx = lo;
+   if ((x)->mx > hi) (x)->mx = hi;
+   if ((x)->mx < lo) (x)->mx = lo;
  
-   (*x).acc = (*x).rej = 0;
+   (x)->acc = (x)->rej = 0;
 }
 
 /*..............................................................................*/
