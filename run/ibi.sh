@@ -95,6 +95,7 @@ set -e
 # CALCULATE TARGET RDF
 if [ -d rdf && -f rdf-target.dat ]; then
 	echo "Target rdf already exists in 'rdf-target.dat'"
+	TARGETFNAME="rdf-target.dat"
 else
 	echo "Calculating target g(r) from trajectory file"
 	mkdir rdf && cd rdf
