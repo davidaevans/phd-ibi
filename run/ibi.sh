@@ -93,19 +93,22 @@ echo "Number of particles for MC simulations    = ${NPART}"
 set -e
 
 # CALCULATE TARGET RDF
-echo "Calculating target g(r) from trajectory file"
-mkdir rdf && cd rdf
-cp ../defaults/options .
-mv ../${TARGETFNAME} .
-echo filename ${TARGETFNAME} >> options
-numframes=$(../scripts/numframes.sh ${TARGETFNAME})
-echo sweeps ${numframes} >> options
-${RDF_PATH}/rdf >> rdf.out
-cp rdf.dat ../rdf-target.dat
-TARGETFNAME="rdf-target.dat"
-cd ../
-echo "Target g(r) calculated and in rdf-target.dat"
-
+if [ -d rdf && -f rdf-target.dat ]; then
+	echo "Target rdf already exists in 'rdf-target.dat'"
+else
+	echo "Calculating target g(r) from trajectory file"
+	mkdir rdf && cd rdf
+	cp ../defaults/options .
+	mv ../${TARGETFNAME} .
+	echo filename ${TARGETFNAME} >> options
+	numframes=$(../scripts/numframes.sh ${TARGETFNAME})
+	echo sweeps ${numframes} >> options
+	${RDF_PATH}/rdf >> rdf.out
+	cp rdf.dat ../rdf-target.dat
+	TARGETFNAME="rdf-target.dat"
+	cd ../
+	echo "Target g(r) calculated and in rdf-target.dat"
+fi
 
 # GENERATE INITIAL POTENTIAL
 echo
