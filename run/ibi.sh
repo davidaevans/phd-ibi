@@ -190,10 +190,10 @@ then
 	cd ../
 else 
 	echo "Directory iteration-${count} already exists..."
-	echo "Exiting"
+	echo "Skipping"
+	((count+=1))
 	echo
 	echo
-	exit 1
 
 fi
 done
