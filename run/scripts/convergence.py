@@ -1,6 +1,7 @@
 import sys
 import os
 import numpy as np
+import math
 
 
 def main():
@@ -19,8 +20,9 @@ def main():
         if (data_targ[i][1] != 0.0):
             sum += (data_iter[i][1]-data_targ[i][1])**2
 
-
-    print(sum)
+    rms = math.sqrt(sum/np.size(data_targ,0))
+    
+    print(sum, rms)
 
 if __name__ == "__main__":
 

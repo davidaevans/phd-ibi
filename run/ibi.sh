@@ -134,6 +134,7 @@ echo "Calculating box size to use for MC simulations"
 BOXSIZE=$(awk -v rho=${DENSITY} -v n=${NPART} 'BEGIN{printf("%lf",sqrt(n/rho))}')
 echo "Calculated box size = " ${BOXSIZE}
 
+echo "#chi-squared rms" > convergence.dat
 
 # ITERATIVE PROCESS
 # Keep track of number of iterations
@@ -179,8 +180,7 @@ then
 
 	# COMPARE G(R) TO GIVEN PRECISION
 	# TEST FOR CONVERGENCE BY CALCULATING CHI SQUARED
-	cp ../scripts/chi-squared.py .
-	python3 chi-squared.py ../truncated-${TARGETFNAME} rdf-truncated.dat >> ../chi-squared.dat
+	python3 ../scripts/convergence.py ../truncated-${TARGETFNAME} rdf-truncated.dat >> ../convergence.dat
 	# IF NOT CLOSE ENOUGH, CHANGE POTENTIAL
 	python3 ../scripts/invert.py potential.dat rdf-truncated.dat ../truncated-${TARGETFNAME} ${TEMP} > invert.log
 
