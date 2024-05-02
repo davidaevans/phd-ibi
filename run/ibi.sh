@@ -93,7 +93,7 @@ echo "Number of particles for MC simulations    = ${NPART}"
 set -e
 
 # CALCULATE TARGET RDF
-if [ -d rdf ] && [ -f rdf-target.dat ]; then
+if [ -f rdf-target.dat ]; then
 	echo "Target rdf already exists in 'rdf-target.dat'"
 	TARGETFNAME="rdf-target.dat"
 else
