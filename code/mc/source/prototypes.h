@@ -188,13 +188,13 @@ void die(char string[]);
 
 double discarea(double length);
 
-void load_potential(long potential_length, double **potential, FILE *potential_file, double *max_potential_distance, double *dr);
+void load_potential(long potential_length, double **potential, FILE *potential_file, double *max_potential_distance, double *dr, int *left_edge);
 
 void generate_config(struct disc *particle, struct vector box, long npart);
 
 void simulate(long npart, struct vector box,
     long nsweeps, long dump, long adjust, struct disp *trans, long periodic,
-    struct disc *particle, double **potential, double kt, double max_potential_distance, double dr, long potential_length);
+    struct disc *particle, double **potential, double kt, double max_potential_distance, double dr, long potential_length, int left_edge);
 
 long getcell(struct vector pos, long ncellx, long ncelly, struct vector box);
 
@@ -202,16 +202,16 @@ int accept_move(struct vector vold, long oldcell, struct disc *particle,
                 struct vector box, long npart, long testp,
                 struct disc **cfirst, long **neighbour, double kt,
                 double **potential, long potential_length, double max_potential_distance, double dr,
-                int cells_redundant);
+                int cells_redundant, int left_edge);
 
 double calculate_energy_difference(struct vector vold, long cellold, struct vector vnew, long cellnew,
            struct disc **cfirst, long **neighbour, struct vector box, struct disc *particle, 
            long testp, double **potential, long potential_length, double max_potential_distance, double dr,
-           int cells_redundant, long npart);
+           int cells_redundant, long npart, int left_edge);
 
 struct vector image(struct vector r1, struct vector r2, struct vector box);
 
-double get_ext_energy(double **potential, long potential_length, double r_squared, double max_potential_distance, double dr);
+double get_ext_energy(double **potential, long potential_length, double r_squared, double max_potential_distance, double dr, int left_edge);
 
 double interpolate(double r1, double r2, double v1, double v2, double r_target);
 
@@ -225,4 +225,4 @@ void accumulate(struct stat *q, double x);
 
 double anint(double arg);
 
-void check_potential(double **potential, long potential_length, double max_potential_distance, double dr);
+void check_potential(double **potential, long potential_length, double max_potential_distance, double dr, int left_edge);

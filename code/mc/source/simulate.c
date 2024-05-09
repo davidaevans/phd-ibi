@@ -5,7 +5,7 @@
 
 void simulate(long npart, struct vector box,
    long nsweeps, long dump, long adjust, struct disp *trans, long periodic,
-   struct disc *particle, double **potential, double kt, double max_potential_distance, double dr, long potential_length)
+   struct disc *particle, double **potential, double kt, double max_potential_distance, double dr, long potential_length, int left_edge)
 {
    static double denom;
    long cell;           /* Cell-list cell of a given particle */
@@ -209,7 +209,7 @@ void simulate(long npart, struct vector box,
          }
          //printf("predecision\n");
 	      fflush(stdout);
-         if (!accept_move(vold, oldcell, particle, box, npart, testp, cfirst, neighbour, kt, potential, potential_length, max_potential_distance, dr, cells_redundant) ) {
+         if (!accept_move(vold, oldcell, particle, box, npart, testp, cfirst, neighbour, kt, potential, potential_length, max_potential_distance, dr, cells_redundant, left_edge) ) {
             /* Reject due to overlap */
             particle[testp].pos = vold;
             trans->rej++;

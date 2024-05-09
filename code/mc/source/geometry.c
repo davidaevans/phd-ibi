@@ -69,7 +69,7 @@ Assume that the potential is equally spaced and the first value for r is equal t
 r
 */
 
-double get_ext_energy(double **potential, long potential_length, double r_squared, double max_potential_distance, double dr)
+double get_ext_energy(double **potential, long potential_length, double r_squared, double max_potential_distance, double dr, int left_edge)
 {
    long i;
    double r;
@@ -77,14 +77,20 @@ double get_ext_energy(double **potential, long potential_length, double r_square
    r = sqrt(r_squared);
    v1 = v2 = r1 =r2 = 0.0;
 
-   if (r > (potential[potential_length-1][0] + dr/2.0)) return 0.0; //TODO: EXTRAPOLATE TO CUTOFF
+   if (left_edge) {
+      if (r > (potential[potential_length-1][0] + dr)) return 0.0;
+      i = floor(r/dr);
+      if (i == (potential_length - 1)) {i--;}
+   } else {
+      if (r > (potential[potential_length-1][0] + dr/2.0)) return 0.0; //TODO: EXTRAPOLATE TO CUTOFF
 
-   i = floor((r-potential[0][0])/dr);
-   if (i < 0) {i = 0;}
+      i = floor((r-potential[0][0])/dr);
+      if (i < 0) {i = 0;}
 
+      if (i == (potential_length - 1)) {i--;}
+   }
 
-   if (i == (potential_length - 1)) {i--;}
-   if (i > potential_length) {die("Bin error in interpolation");}
+   if (i > potential_length - 1) {die("Bin error in interpolation");}
    
    r1 = potential[i][0];
    v1 = potential[i][1];

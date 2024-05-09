@@ -17,6 +17,7 @@ int main()
     long nsweeps;               /* Number of pdiscuction sweeps */
     long i;                     /* Iterator */
     long potential_length;     /* Number of points in potential */
+    int left_edge;              /* Potential is left edge (1) or centres (0) */
     struct disp trans;         /* Maximum (unscaled) translation step */
     struct disc *particle;      /* Configuration of entire system */
     struct vector box;          /* Simulation cell dimensions */
@@ -49,8 +50,8 @@ int main()
 
     printf("Loading potential\n");
     max_potential_distance = dr = 0.0;
-    load_potential(potential_length, potential, potential_file, &max_potential_distance, &dr);
-    check_potential(potential, potential_length, max_potential_distance, dr);
+    load_potential(potential_length, potential, potential_file, &max_potential_distance, &dr, &left_edge);
+    check_potential(potential, potential_length, max_potential_distance, dr, left_edge);
 
     generate_config(particle, box, npart);
 
@@ -58,14 +59,14 @@ int main()
 
     printf ("Beginning cell set-up and equilibration\n\n");
     simulate(npart, box, equilibrate, 0, adjust,
-        &trans, periodic, particle, potential, kt, max_potential_distance, dr, potential_length);
+        &trans, periodic, particle, potential, kt, max_potential_distance, dr, potential_length, left_edge);
 
     printf ("Equilibrated step size: %.6le\n", trans.mx);
 
     printf ("Beginning main run\n\n");
     fflush (stdout);
     simulate(npart, box, nsweeps, dump, 0,
-        &trans, periodic, particle, potential, kt, max_potential_distance, dr, potential_length);
+        &trans, periodic, particle, potential, kt, max_potential_distance, dr, potential_length, left_edge);
     printf("\n\nTrial Move Statistics:\n");
     printf("Moves accepted: %ld\n", trans.acc);
     printf("Moves rejected: %ld\n", trans.rej);

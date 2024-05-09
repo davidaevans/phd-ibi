@@ -14,7 +14,6 @@ void read_options(long *npart, struct vector *box,
 {
     char command[20];
     char error[200];
-    double boxarea;    /* Area of simulation cell */
 
     FILE *infile;
 

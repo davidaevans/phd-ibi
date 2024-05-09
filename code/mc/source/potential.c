@@ -5,7 +5,7 @@
 double calculate_energy_difference(struct vector vold, long cellold, struct vector vnew, long cellnew,
            struct disc **cfirst, long **neighbour, struct vector box, struct disc *particle, 
            long testp, double **potential, long potential_length, double max_potential_distance, double dr,
-           int cells_redundant, long npart) {
+           int cells_redundant, long npart, int left_edge) {
 
     long *cell;
     long i;
@@ -40,7 +40,7 @@ double calculate_energy_difference(struct vector vold, long cellold, struct vect
                     r2 = DOT(r_cm, r_cm);
 
                     if (r2 <= critval2) {
-                        energyold += get_ext_energy(potential, potential_length, r2, max_potential_distance, dr);
+                        energyold += get_ext_energy(potential, potential_length, r2, max_potential_distance, dr, left_edge);
                     }
                 }
 
@@ -64,7 +64,7 @@ double calculate_energy_difference(struct vector vold, long cellold, struct vect
                     r2 = DOT(r_cm, r_cm);
                     if (r2 <= critval2) {
                         //if (r <= 0.09) {printf("%lf\n",sqrt(r));}
-                        energynew += get_ext_energy(potential, potential_length, r2, max_potential_distance, dr);
+                        energynew += get_ext_energy(potential, potential_length, r2, max_potential_distance, dr, left_edge);
                     }
                 }
 
@@ -81,14 +81,14 @@ double calculate_energy_difference(struct vector vold, long cellold, struct vect
             r_cm = image(vold, particle[i].pos, box);
             r2 = DOT(r_cm, r_cm);
             if (r2 <= critval2) {
-                energyold += get_ext_energy(potential, potential_length, r2, max_potential_distance, dr);
+                energyold += get_ext_energy(potential, potential_length, r2, max_potential_distance, dr, left_edge);
             }
 
             // new energy
             r_cm = image(vnew, particle[i].pos, box);
             r2 = DOT(r_cm, r_cm);
             if (r2 <= critval2) {
-                energyold += get_ext_energy(potential, potential_length, r2, max_potential_distance, dr);
+                energyold += get_ext_energy(potential, potential_length, r2, max_potential_distance, dr, left_edge);
             }
         }
     }
@@ -99,7 +99,7 @@ double calculate_energy_difference(struct vector vold, long cellold, struct vect
 
 /*..............................................................................*/
 
-void check_potential(double **potential, long potential_length, double max_potential_distance, double dr) {
+void check_potential(double **potential, long potential_length, double max_potential_distance, double dr, int left_edge) {
    double r, pot;
    FILE *outfile = NULL;
 
@@ -111,7 +111,7 @@ void check_potential(double **potential, long potential_length, double max_poten
    r = 0.0;
    while (r < 5.0) {
       
-      pot = get_ext_energy(potential, potential_length, SQ(r), max_potential_distance, dr);
+      pot = get_ext_energy(potential, potential_length, SQ(r), max_potential_distance, dr, left_edge);
 
       fprintf(outfile, "%lf %lf\n", r, pot);
 

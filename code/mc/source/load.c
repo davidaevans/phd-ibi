@@ -16,7 +16,7 @@ long get_file_length(FILE *fp){
     return lines;
 }
 
-void load_potential(long potential_length, double **potential, FILE *potential_file, double *max_potential_distance, double *dr) {
+void load_potential(long potential_length, double **potential, FILE *potential_file, double *max_potential_distance, double *dr, int *left_edge) {
     long i;
     double r0;
 
@@ -32,13 +32,25 @@ void load_potential(long potential_length, double **potential, FILE *potential_f
 
     *dr = (double) (potential[1][0] - potential[0][0]);
     *max_potential_distance = potential[(potential_length)-1][0];
-    r0 = *dr/2;
+    r0 = potential[0][0];
 
     printf("Spacing in r: %lf\n", *dr);
     printf("Maximum separation: %lf\n", *max_potential_distance);
-    printf("Expected first bin r: %lf\n", r0);
-    printf("Actual first bin r: %lf\n\n", potential[0][0]);
+    printf("First bin r: %lf\n\n", potential[0][0]);
 
-    if (fabs(potential[0][0] - r0) > 0.0001) die ("Potential should be at bin centres.");
+    // Test if first r is left edge or centre of bin
+    // Left edge, r should be 0.0
+    if (r0 < 0.0001) {
+        printf("Potential is at left edge\n\n");
+        *left_edge = 1;
+    } else if (fabs(potential[0][0] - *dr/2.0) < 0.0001) {
+        printf("Potential is at centre\n\n");
+        *left_edge = 0;
+    } else {
+        die ("Potential should be at left edge or centre of bins");
+    }
+
+
+    // if (fabs(potential[0][0] - r0) > 0.0001) die ("Potential should be at bin centres.");
 
 }
