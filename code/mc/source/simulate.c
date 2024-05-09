@@ -13,6 +13,7 @@ void simulate(long npart, struct vector box, double diameter,
    static long ncellx, ncelly;     /* Number of cell-list cells in each direction */
    static long ncells;  /* Total number of cell-list cells */
    static long **neighbour=NULL;   /* List of neighbouring cells for each cell */
+   static int cells_redundant;
    long next_adjust;    /* Next sweep number for adjusting step sizes */
    long next_frame;     /* Next sweep number for dumping a movie frame */
    long oldcell;        /* For saving original cell of test particle */
@@ -32,109 +33,118 @@ void simulate(long npart, struct vector box, double diameter,
       denom = max_potential_distance;
       ncellx = (long)(box.x / (denom));
       ncelly = (long)(box.y / (denom));
-      ncells = ncellx * ncelly;
-      cfirst = (struct disc **)malloc(sizeof(struct disc *) * ncells);
-      neighbour = (long **)malloc(sizeof(long *) * ncells);
-      for (i=0; i<ncells; i++) {
-         neighbour[i] = (long *)malloc(sizeof(long) * 10);
+
+      if (ncellx <= 3 || ncelly <= 3) {
+         cells_redundant = 1;
+         printf("Not enough cells for cell lists\n");
+         printf("Continuing without cell lists\n");
       }
 
-      printf("Creating neighbour list\n");
-      /* Work out neighbouring cells for each cell by pointer */
-      /* Interior of box */
-      for (i=0; i<ncellx; i++) {
-         for (j=0; j<ncelly; j++) {
-            neighbour[j*ncellx+i][0] = ((j-1) + (j==0?ncelly:0))*ncellx + ((i-1) + (i==0?ncellx:0));
-            neighbour[j*ncellx+i][1] = ((j-1) + (j==0?ncelly:0))*ncellx + i;
-            neighbour[j*ncellx+i][2] = ((j-1) + (j==0?ncelly:0))*ncellx + ((i+1) - (i==ncellx-1?ncellx:0));
-            neighbour[j*ncellx+i][3] = j*ncellx + ((i-1) + (i==0?ncellx:0));
-            neighbour[j*ncellx+i][4] = j*ncellx + i;
-            neighbour[j*ncellx+i][5] = j*ncellx + ((i+1) - (i==ncellx-1?ncellx:0));
-            neighbour[j*ncellx+i][6] = ((j+1) - (j==ncelly-1?ncelly:0))*ncellx + ((i-1) + (i==0?ncellx:0));
-            neighbour[j*ncellx+i][7] = ((j+1) - (j==ncelly-1?ncelly:0))*ncellx + i;
-            neighbour[j*ncellx+i][8] = ((j+1) - (j==ncelly-1?ncelly:0))*ncellx + ((i+1) - (i==ncellx-1?ncellx:0));
-            neighbour[j*ncellx+i][9] = -1;  /* end token */
+      if (!cells_redundant) {
+         ncells = ncellx * ncelly;
+         cfirst = (struct disc **)malloc(sizeof(struct disc *) * ncells);
+         neighbour = (long **)malloc(sizeof(long *) * ncells);
+         for (i=0; i<ncells; i++) {
+            neighbour[i] = (long *)malloc(sizeof(long) * 10);
          }
-      }
-      if (!periodic) {
-         // printf("OVERWRITING BOUNDARIES WITHOUT PBC\n");
-         /* Overwrite periodic results along the boundaries */
-         /* Edges */
-         for (i=1; i<ncellx-1; i++) {
-            /* top */
-            neighbour[i][0] = i-1;
-            neighbour[i][1] = i;
-            neighbour[i][2] = i+1;
-            neighbour[i][3] = ncellx + (i-1);
-            neighbour[i][4] = ncellx + i;
-            neighbour[i][5] = ncellx + (i+1);
-            neighbour[i][6] = -1;
-            /* bottom */
-            neighbour[(ncelly-1)*ncellx + i][0] = (ncelly-2)*ncellx + (i-1);
-            neighbour[(ncelly-1)*ncellx + i][1] = (ncelly-2)*ncellx + i;
-            neighbour[(ncelly-1)*ncellx + i][2] = (ncelly-2)*ncellx + (i+1);
-            neighbour[(ncelly-1)*ncellx + i][3] = (ncelly-1)*ncellx + (i-1);
-            neighbour[(ncelly-1)*ncellx + i][4] = (ncelly-1)*ncellx + i;
-            neighbour[(ncelly-1)*ncellx + i][5] = (ncelly-1)*ncellx + (i+1);
-            neighbour[(ncelly-1)*ncellx + i][6] = -1;
+
+         printf("Creating neighbour list\n");
+         /* Work out neighbouring cells for each cell by pointer */
+         /* Interior of box */
+         for (i=0; i<ncellx; i++) {
+            for (j=0; j<ncelly; j++) {
+               neighbour[j*ncellx+i][0] = ((j-1) + (j==0?ncelly:0))*ncellx + ((i-1) + (i==0?ncellx:0));
+               neighbour[j*ncellx+i][1] = ((j-1) + (j==0?ncelly:0))*ncellx + i;
+               neighbour[j*ncellx+i][2] = ((j-1) + (j==0?ncelly:0))*ncellx + ((i+1) - (i==ncellx-1?ncellx:0));
+               neighbour[j*ncellx+i][3] = j*ncellx + ((i-1) + (i==0?ncellx:0));
+               neighbour[j*ncellx+i][4] = j*ncellx + i;
+               neighbour[j*ncellx+i][5] = j*ncellx + ((i+1) - (i==ncellx-1?ncellx:0));
+               neighbour[j*ncellx+i][6] = ((j+1) - (j==ncelly-1?ncelly:0))*ncellx + ((i-1) + (i==0?ncellx:0));
+               neighbour[j*ncellx+i][7] = ((j+1) - (j==ncelly-1?ncelly:0))*ncellx + i;
+               neighbour[j*ncellx+i][8] = ((j+1) - (j==ncelly-1?ncelly:0))*ncellx + ((i+1) - (i==ncellx-1?ncellx:0));
+               neighbour[j*ncellx+i][9] = -1;  /* end token */
+            }
          }
-         for (j=1; j<ncelly-1; j++) {
-            /* left */
-            neighbour[j*ncellx][0] = (j-1)*ncellx;
-            neighbour[j*ncellx][1] = (j-1)*ncellx + 1;
-            neighbour[j*ncellx][2] = j*ncellx;
-            neighbour[j*ncellx][3] = j*ncellx + 1;
-            neighbour[j*ncellx][4] = (j+1)*ncellx;
-            neighbour[j*ncellx][5] = (j+1)*ncellx + 1;
-            neighbour[j*ncellx][6] = -1;
-            /* right */
-            neighbour[(j+1)*ncellx-1][0] = j*ncellx-2;
-            neighbour[(j+1)*ncellx-1][1] = j*ncellx-1;
-            neighbour[(j+1)*ncellx-1][2] = (j+1)*ncellx-2;
-            neighbour[(j+1)*ncellx-1][3] = (j+1)*ncellx-1;
-            neighbour[(j+1)*ncellx-1][4] = (j+2)*ncellx-2;
-            neighbour[(j+1)*ncellx-1][5] = (j+2)*ncellx-1;
-            neighbour[(j+1)*ncellx-1][6] = -1;
+         if (!periodic) {
+            // printf("OVERWRITING BOUNDARIES WITHOUT PBC\n");
+            /* Overwrite periodic results along the boundaries */
+            /* Edges */
+            for (i=1; i<ncellx-1; i++) {
+               /* top */
+               neighbour[i][0] = i-1;
+               neighbour[i][1] = i;
+               neighbour[i][2] = i+1;
+               neighbour[i][3] = ncellx + (i-1);
+               neighbour[i][4] = ncellx + i;
+               neighbour[i][5] = ncellx + (i+1);
+               neighbour[i][6] = -1;
+               /* bottom */
+               neighbour[(ncelly-1)*ncellx + i][0] = (ncelly-2)*ncellx + (i-1);
+               neighbour[(ncelly-1)*ncellx + i][1] = (ncelly-2)*ncellx + i;
+               neighbour[(ncelly-1)*ncellx + i][2] = (ncelly-2)*ncellx + (i+1);
+               neighbour[(ncelly-1)*ncellx + i][3] = (ncelly-1)*ncellx + (i-1);
+               neighbour[(ncelly-1)*ncellx + i][4] = (ncelly-1)*ncellx + i;
+               neighbour[(ncelly-1)*ncellx + i][5] = (ncelly-1)*ncellx + (i+1);
+               neighbour[(ncelly-1)*ncellx + i][6] = -1;
+            }
+            for (j=1; j<ncelly-1; j++) {
+               /* left */
+               neighbour[j*ncellx][0] = (j-1)*ncellx;
+               neighbour[j*ncellx][1] = (j-1)*ncellx + 1;
+               neighbour[j*ncellx][2] = j*ncellx;
+               neighbour[j*ncellx][3] = j*ncellx + 1;
+               neighbour[j*ncellx][4] = (j+1)*ncellx;
+               neighbour[j*ncellx][5] = (j+1)*ncellx + 1;
+               neighbour[j*ncellx][6] = -1;
+               /* right */
+               neighbour[(j+1)*ncellx-1][0] = j*ncellx-2;
+               neighbour[(j+1)*ncellx-1][1] = j*ncellx-1;
+               neighbour[(j+1)*ncellx-1][2] = (j+1)*ncellx-2;
+               neighbour[(j+1)*ncellx-1][3] = (j+1)*ncellx-1;
+               neighbour[(j+1)*ncellx-1][4] = (j+2)*ncellx-2;
+               neighbour[(j+1)*ncellx-1][5] = (j+2)*ncellx-1;
+               neighbour[(j+1)*ncellx-1][6] = -1;
+            }
+            /* Corners */
+            /* Top left */
+            neighbour[0][0] = 0;
+            neighbour[0][1] = 1;
+            neighbour[0][2] = ncellx;
+            neighbour[0][3] = ncellx+1;
+            neighbour[0][4] = -1;
+            /* Top right */
+            neighbour[ncellx-1][0] = ncellx-2;
+            neighbour[ncellx-1][1] = ncellx-1;
+            neighbour[ncellx-1][2] = 2*ncellx-2;
+            neighbour[ncellx-1][3] = 2*ncellx-1;
+            neighbour[ncellx-1][4] = -1;
+            /* Bottom left */
+            neighbour[ncellx*(ncelly-1)][0] = ncellx*(ncelly-2);
+            neighbour[ncellx*(ncelly-1)][1] = ncellx*(ncelly-2) + 1;
+            neighbour[ncellx*(ncelly-1)][2] = ncellx*(ncelly-1);
+            neighbour[ncellx*(ncelly-1)][3] = ncellx*(ncelly-1) + 1;
+            neighbour[ncellx*(ncelly-1)][4] = -1;
+            /* Bottom right */
+            neighbour[ncellx*ncelly-1][0] = ncellx*(ncelly-1) - 2;
+            neighbour[ncellx*ncelly-1][1] = ncellx*(ncelly-1) - 1;
+            neighbour[ncellx*ncelly-1][2] = ncellx*ncelly - 2;
+            neighbour[ncellx*ncelly-1][3] = ncellx*ncelly - 1;
+            neighbour[ncellx*ncelly-1][4] = - 1;
          }
-         /* Corners */
-         /* Top left */
-         neighbour[0][0] = 0;
-         neighbour[0][1] = 1;
-         neighbour[0][2] = ncellx;
-         neighbour[0][3] = ncellx+1;
-         neighbour[0][4] = -1;
-         /* Top right */
-         neighbour[ncellx-1][0] = ncellx-2;
-         neighbour[ncellx-1][1] = ncellx-1;
-         neighbour[ncellx-1][2] = 2*ncellx-2;
-         neighbour[ncellx-1][3] = 2*ncellx-1;
-         neighbour[ncellx-1][4] = -1;
-         /* Bottom left */
-         neighbour[ncellx*(ncelly-1)][0] = ncellx*(ncelly-2);
-         neighbour[ncellx*(ncelly-1)][1] = ncellx*(ncelly-2) + 1;
-         neighbour[ncellx*(ncelly-1)][2] = ncellx*(ncelly-1);
-         neighbour[ncellx*(ncelly-1)][3] = ncellx*(ncelly-1) + 1;
-         neighbour[ncellx*(ncelly-1)][4] = -1;
-         /* Bottom right */
-         neighbour[ncellx*ncelly-1][0] = ncellx*(ncelly-1) - 2;
-         neighbour[ncellx*ncelly-1][1] = ncellx*(ncelly-1) - 1;
-         neighbour[ncellx*ncelly-1][2] = ncellx*ncelly - 2;
-         neighbour[ncellx*ncelly-1][3] = ncellx*ncelly - 1;
-         neighbour[ncellx*ncelly-1][4] = - 1;
-      }
       
-      /* Put the particles in the cells */
-      for (i=0; i<npart; i++) { particle[i].next = particle[i].prev = NULL; }
-      for (i=0; i<ncells; i++) { cfirst[i] = NULL; }
-      for (i=0; i<npart; i++) {
-         cell = getcell(particle[i].pos, ncellx, ncelly, box);
-         particle[i].cell = cell;
-         if (cfirst[cell]) cfirst[cell]->prev = &particle[i];
-         particle[i].next = cfirst[cell];
-         cfirst[cell] = &particle[i];
-      }
+         /* Put the particles in the cells */
+         for (i=0; i<npart; i++) { particle[i].next = particle[i].prev = NULL; }
+         for (i=0; i<ncells; i++) { cfirst[i] = NULL; }
+         for (i=0; i<npart; i++) {
+            cell = getcell(particle[i].pos, ncellx, ncelly, box);
+            particle[i].cell = cell;
+            if (cfirst[cell]) cfirst[cell]->prev = &particle[i];
+            particle[i].next = cfirst[cell];
+            cfirst[cell] = &particle[i];
+         }
 
-      printf ("Cell list grid: %ld x %ld\n\n", ncellx, ncelly);
+         printf ("Cell list grid: %ld x %ld\n\n", ncellx, ncelly);
+      }
    }
 
    /*=== Initialise counters etc. ===*/
@@ -179,7 +189,7 @@ void simulate(long npart, struct vector box, double diameter,
 
          cell = getcell(particle[testp].pos, ncellx, ncelly, box);
 
-         if (cell != oldcell) {
+         if (!cells_redundant && cell != oldcell) {
             /* Remove particle from original cell */
             if (particle[testp].prev) {
                (particle[testp].prev)->next = particle[testp].next;
@@ -199,11 +209,11 @@ void simulate(long npart, struct vector box, double diameter,
          }
          //printf("predecision\n");
 	      fflush(stdout);
-         if (!accept_move(vold, oldcell, particle, box, npart, testp, cfirst, neighbour, kt, potential, potential_length, max_potential_distance, dr) ) {
+         if (!accept_move(vold, oldcell, particle, box, npart, testp, cfirst, neighbour, kt, potential, potential_length, max_potential_distance, dr, cells_redundant) ) {
             /* Reject due to overlap */
             particle[testp].pos = vold;
             trans->rej++;
-            if (cell != oldcell) {
+            if (!cells_redundant && cell != oldcell) {
                /* Remove particle from trial cell, given that it must be the first one in the cell */
                if (particle[testp].next) (particle[testp].next)->prev = NULL;
                cfirst[cell] = particle[testp].next;
@@ -224,7 +234,7 @@ void simulate(long npart, struct vector box, double diameter,
 
       /*=== Adjust step sizes during equilibration ===*/
       if (sweep == next_adjust) {
-         maxstep(trans, diameter, 0.001);
+         maxstep(trans, 2.5, 0.001);
          next_adjust += adjust;
       }
 

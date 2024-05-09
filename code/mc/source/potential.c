@@ -4,9 +4,11 @@
 /*..............................................................................*/
 double calculate_energy_difference(struct vector vold, long cellold, struct vector vnew, long cellnew, double diameter,
            struct disc **cfirst, long **neighbour, struct vector box, struct disc *particle, 
-           long testp, double **potential, long potential_length, double max_potential_distance, double dr) {
+           long testp, double **potential, long potential_length, double max_potential_distance, double dr,
+           int cells_redundant, long npart) {
 
     long *cell;
+    long i;
     struct disc *test;
     struct vector r_cm;
 
@@ -21,54 +23,75 @@ double calculate_energy_difference(struct vector vold, long cellold, struct vect
     critval = max_potential_distance;
     critval2 = SQ(critval);
 
-    //absolute energy of old config
-    /* Loop over all cells adjacent to particle */
-    cell = &neighbour[cellold][0];
-    while (*cell >= 0) {
-        /* Loop over all particles in cell */
-        test = cfirst[*cell];
-        while (test) {
+    if (!cells_redundant) {
 
-            if (testp != test->idx) {
-                r_cm = image(vold, test->pos, box);
+        //absolute energy of old config
+        /* Loop over all cells adjacent to particle */
+        cell = &neighbour[cellold][0];
+        while (*cell >= 0) {
+            /* Loop over all particles in cell */
+            test = cfirst[*cell];
+            while (test) {
 
-                //calculate pair energy contribution
-                r2 = DOT(r_cm, r_cm);
+                if (testp != test->idx) {
+                    r_cm = image(vold, test->pos, box);
 
-                if (r2 <= critval2) {
-                    energyold += get_ext_energy(potential, potential_length, r2, max_potential_distance, dr);
+                    //calculate pair energy contribution
+                    r2 = DOT(r_cm, r_cm);
+
+                    if (r2 <= critval2) {
+                        energyold += get_ext_energy(potential, potential_length, r2, max_potential_distance, dr);
+                    }
                 }
+
+            test = test->next;
+            }  /* End of loop over particles in adjacent cell */
+
+            cell++;
+        }  /* End of loop of adjacent cells */    
+        //printf("eo: %lf\n", energyold);
+        //absolute energy of new config
+        /* Loop over all cells adjacent to particle */
+        cell = &neighbour[cellnew][0];
+        while (*cell >= 0) {
+            /* Loop over all particles in cell */
+            test = cfirst[*cell];
+            while (test) {
+
+                if (testp != test->idx) {
+                    r_cm = image(vnew, test->pos, box);
+                    //calculate pair energy contribution
+                    r2 = DOT(r_cm, r_cm);
+                    if (r2 <= critval2) {
+                        //if (r <= 0.09) {printf("%lf\n",sqrt(r));}
+                        energynew += get_ext_energy(potential, potential_length, r2, max_potential_distance, dr);
+                    }
+                }
+
+            test = test->next;
+            }  /* End of loop over particles in adjacent cell */
+
+            cell++;
+        }  /* End of loop of adjacent cells */
+    } else {
+        // Calculate old and new energies
+        for (i = 0; i < npart; i++) {
+            if (i == testp){continue;}
+            // old energy
+            r_cm = image(vold, particle[i].pos, box);
+            r2 = DOT(r_cm, r_cm);
+            if (r2 <= critval2) {
+                energyold += get_ext_energy(potential, potential_length, r2, max_potential_distance, dr);
             }
 
-        test = test->next;
-        }  /* End of loop over particles in adjacent cell */
-
-        cell++;
-    }  /* End of loop of adjacent cells */    
-    //printf("eo: %lf\n", energyold);
-    //absolute energy of new config
-    /* Loop over all cells adjacent to particle */
-    cell = &neighbour[cellnew][0];
-    while (*cell >= 0) {
-        /* Loop over all particles in cell */
-        test = cfirst[*cell];
-        while (test) {
-
-            if (testp != test->idx) {
-                r_cm = image(vnew, test->pos, box);
-                //calculate pair energy contribution
-                r2 = DOT(r_cm, r_cm);
-                if (r2 <= critval2) {
-                    //if (r <= 0.09) {printf("%lf\n",sqrt(r));}
-                    energynew += get_ext_energy(potential, potential_length, r2, max_potential_distance, dr);
-                }
+            // new energy
+            r_cm = image(vnew, particle[i].pos, box);
+            r2 = DOT(r_cm, r_cm);
+            if (r2 <= critval2) {
+                energyold += get_ext_energy(potential, potential_length, r2, max_potential_distance, dr);
             }
-
-        test = test->next;
-        }  /* End of loop over particles in adjacent cell */
-
-        cell++;
-    }  /* End of loop of adjacent cells */   
+        }
+    }
     
     //return energy difference
     return energynew - energyold;

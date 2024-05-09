@@ -201,11 +201,13 @@ long getcell(struct vector pos, long ncellx, long ncelly, struct vector box);
 int accept_move(struct vector vold, long oldcell, struct disc *particle,
                 struct vector box, long npart, long testp,
                 struct disc **cfirst, long **neighbour, double kt,
-                double **potential, long potential_length, double max_potential_distance, double dr);
+                double **potential, long potential_length, double max_potential_distance, double dr,
+                int cells_redundant);
 
 double calculate_energy_difference(struct vector vold, long cellold, struct vector vnew, long cellnew, double diameter,
            struct disc **cfirst, long **neighbour, struct vector box, struct disc *particle, 
-           long testp, double **potential, long potential_length, double max_potential_distance, double dr);
+           long testp, double **potential, long potential_length, double max_potential_distance, double dr,
+           int cells_redundant, long npart);
 
 struct vector image(struct vector r1, struct vector r2, struct vector box);
 
