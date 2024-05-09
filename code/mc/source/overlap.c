@@ -13,23 +13,23 @@ not scaled coordinates) must be sent as an argument in this version.
 Returns 1 if there is an overlap, 0 if not.
 */
 
-int overlap(struct vector r_cm, double diameter1, double diameter2, double shell)
-{
-   double sep; //scalar separation of two discs
-   double thresh; //threshold value for contact of two discs
+// int overlap(struct vector r_cm, double diameter1, double diameter2, double shell)
+// {
+//    double sep; //scalar separation of two discs
+//    double thresh; //threshold value for contact of two discs
 
-   sep = DOT(r_cm, r_cm);
-   thresh = (diameter1 * shell)/2 + (diameter2 * shell)/2;
+//    sep = DOT(r_cm, r_cm);
+//    thresh = (diameter1 * shell)/2 + (diameter2 * shell)/2;
    
-   if (sep <= SQ(thresh)) {
-      //printf("overlap\n");
-      return 1;
-   } else {
-      //printf("no overlap\n");
-      return 0;
-   }
+//    if (sep <= SQ(thresh)) {
+//       //printf("overlap\n");
+//       return 1;
+//    } else {
+//       //printf("no overlap\n");
+//       return 0;
+//    }
 
-}
+// }
 
 /*..............................................................................*/
 
@@ -76,34 +76,34 @@ with the core of any other particle.  Returns 1 if an overlap is detected and 0
 if not.
 */
 
-int pairo(long ntot, long testp, struct disc *particle,
-          struct vector box, struct disc **cfirst, long **neighbour)
-{
-   long *cell;
-   struct disc *test;
-   struct vector r_cm;
+// int pairo(long ntot, long testp, struct disc *particle,
+//           struct vector box, struct disc **cfirst, long **neighbour)
+// {
+//    long *cell;
+//    struct disc *test;
+//    struct vector r_cm;
 
-   /* Loop over all cells adjacent to particle */
-   cell = &neighbour[particle[testp].cell][0];
-   while (*cell >= 0) {
-      /* Loop over all particles in cell */
-      test = cfirst[*cell];
-      while (test) {
+//    /* Loop over all cells adjacent to particle */
+//    cell = &neighbour[particle[testp].cell][0];
+//    while (*cell >= 0) {
+//       /* Loop over all particles in cell */
+//       test = cfirst[*cell];
+//       while (test) {
 
-         if (testp != test->idx) {
-            //printf("a\n");
-            r_cm = image(particle[testp].pos, test->pos, box);
-            //compares on hard core overlap - i.e. shell is set to 1
-            if ( overlap(r_cm, particle[testp].diameter, test->diameter, 1.0) )
-            { return 1; }
-         }
+//          if (testp != test->idx) {
+//             //printf("a\n");
+//             r_cm = image(particle[testp].pos, test->pos, box);
+//             //compares on hard core overlap - i.e. shell is set to 1
+//             if ( overlap(r_cm, particle[testp].diameter, test->diameter, 1.0) )
+//             { return 1; }
+//          }
 
-      test = test->next;
-      }  /* End of loop over particles in adjacent cell */
+//       test = test->next;
+//       }  /* End of loop over particles in adjacent cell */
 
-      cell++;
-   }  /* End of loop of adjacent cells */
+//       cell++;
+//    }  /* End of loop of adjacent cells */
 
-   return 0;
-}
+//    return 0;
+// }
 

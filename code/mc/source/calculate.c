@@ -12,15 +12,13 @@ int accept_move(struct vector vold, long oldcell, struct disc *particle,
 {
     long newcell;
     double deltaE;
-    double diameter;
     struct vector vnew;
 
     newcell = particle[testp].cell;
     vnew = particle[testp].pos;
-    diameter = particle[testp].diameter;
     deltaE = 0;
 
-    deltaE = calculate_energy_difference(vold, oldcell, vnew, newcell, diameter, cfirst, neighbour, box, particle, testp, potential, potential_length, max_potential_distance, dr, cells_redundant, npart);
+    deltaE = calculate_energy_difference(vold, oldcell, vnew, newcell, cfirst, neighbour, box, particle, testp, potential, potential_length, max_potential_distance, dr, cells_redundant, npart);
 
     return metropolis(deltaE, kt);
 }

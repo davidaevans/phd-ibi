@@ -8,15 +8,13 @@ Reads the run parameters from the external file "options".  See INSTRUCTIONS
 for a list of keywords.
 */
 
-void read_options(long *npart, struct vector *box, double *diameter,
+void read_options(long *npart, struct vector *box,
     long *nsweeps, long *dump, long *equilibrate, long *periodic, 
     long *adjust, struct disp *trans, double *kt)
 {
     char command[20];
     char error[200];
     double boxarea;    /* Area of simulation cell */
-    double minbox;
-    double pf;     /* Core packing fraction of each species */
 
     FILE *infile;
 
@@ -24,7 +22,6 @@ void read_options(long *npart, struct vector *box, double *diameter,
     *adjust = 50;                      /* Sweeps between step size adjustments (equilibration) */
     box->x = box->y -1.0;              /* Box dimensions */
     *equilibrate = 100;                /* Number of equilibration sweeps */
-    *diameter = 0.0;                   /* Diameter of particles */
     *npart = 0;                        /* Number of discs species 1 */
     *nsweeps = 0;                      /* Number of accumulation sweeps */
     *dump = 0;                         /* dump config every x sweeps*/
@@ -56,9 +53,6 @@ void read_options(long *npart, struct vector *box, double *diameter,
 
         } else if (strcmp(command, "EQUILIBRATE") == 0) {
             if (!get_int(equilibrate)) die ("Could not read number of equilibration sweeps after EQUILIBRATE");
-        } else if (strcmp(command, "DIAMETER") == 0) {
-            if (!get_double(diameter)) die ("Could not read diameter of disks after DIAMETER");
-
         // OPTIONAL
         } else if (strcmp(command, "MAXSTEP") == 0) {
             if (!get_double(&trans->mx)) die ("Could not read max trans step after MAXSEP");
@@ -89,10 +83,6 @@ void read_options(long *npart, struct vector *box, double *diameter,
         die ("The number of discs must be at least 1.");
     }
 
-    if (*diameter < 0.01) {
-        die ("The diameter must be at least 0.01");
-    }
-
     if (seed == 0) {
         die ("The random seed must be a negative integer (not zero).");
     }
@@ -101,16 +91,12 @@ void read_options(long *npart, struct vector *box, double *diameter,
         die ("The value of kt must be greater than 0.0");
     }
 
-    minbox = *diameter * 2.0;
-    if ( (box->x < minbox) || (box->y < minbox) ) {
-        die ("Both box lengths must be at least two full discs long.");
+    if ( (box->x < 2.0) || (box->y < 2.0) ) {
+        die ("Both box lengths must be at least 2.0");
     }
 
     if (*dump > *nsweeps) *dump=*nsweeps;
 
-    boxarea = (box->x) * (box->y) ;
-
-    pf = *npart * discarea(*diameter) / boxarea;
 
 
     /*--- 3. Summarize results on standard output ---*/
@@ -119,9 +105,7 @@ void read_options(long *npart, struct vector *box, double *diameter,
         box->x, box->y);
     printf (" KT:                                       %.8lf\n", *kt);
     printf (" Number of discs:                          %ld\n", *npart);
-    printf (" Diameter:                                 %lf\n", *diameter);
     printf (" Number density:                           %lf\n", *npart/(box->x * box->y));
-    printf (" Packing fraction:                         %lf\n", pf);
     printf (" Number of sweeps:\n");
     printf ("    Equilibration:                         %ld\n", *equilibrate);
     printf ("    Main run:                              %ld\n", *nsweeps);

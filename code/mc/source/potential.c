@@ -2,7 +2,7 @@
 #include "prototypes.h"
 
 /*..............................................................................*/
-double calculate_energy_difference(struct vector vold, long cellold, struct vector vnew, long cellnew, double diameter,
+double calculate_energy_difference(struct vector vold, long cellold, struct vector vnew, long cellnew,
            struct disc **cfirst, long **neighbour, struct vector box, struct disc *particle, 
            long testp, double **potential, long potential_length, double max_potential_distance, double dr,
            int cells_redundant, long npart) {

@@ -29,7 +29,7 @@ struct disc {     /* Define a disc */
    // struct vector dir;       /* Unit direction vector of axis */
    //double theta;            /* Polar angle dorresponding to dir */
    // int species;             /* 0 for species 1 or 1 for species 2 */
-   double diameter;           /* Diameter of particle */
+   // double diameter;           /* Diameter of particle */
    // double response;         /* Prefactor for the energy function */
    long cell;               /* Cell in cell-list scheme to which particle belongs */
    struct disc *next;   /* Pointer to next particle in the same cell */

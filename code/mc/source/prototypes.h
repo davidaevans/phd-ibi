@@ -169,7 +169,7 @@
 // void checkLJPotential();
 // }
 
-void read_options(long *npart, struct vector *box, double *diameter,
+void read_options(long *npart, struct vector *box,
     long *nsweeps, long *dump, long *equilibrate, long *periodic, 
     long *adjust, struct disp *trans, double *kt);
 
@@ -190,9 +190,9 @@ double discarea(double length);
 
 void load_potential(long potential_length, double **potential, FILE *potential_file, double *max_potential_distance, double *dr);
 
-void generate_config(struct disc *particle, struct vector box, long npart, double diameter);
+void generate_config(struct disc *particle, struct vector box, long npart);
 
-void simulate(long npart, struct vector box, double diameter,
+void simulate(long npart, struct vector box,
     long nsweeps, long dump, long adjust, struct disp *trans, long periodic,
     struct disc *particle, double **potential, double kt, double max_potential_distance, double dr, long potential_length);
 
@@ -204,7 +204,7 @@ int accept_move(struct vector vold, long oldcell, struct disc *particle,
                 double **potential, long potential_length, double max_potential_distance, double dr,
                 int cells_redundant);
 
-double calculate_energy_difference(struct vector vold, long cellold, struct vector vnew, long cellnew, double diameter,
+double calculate_energy_difference(struct vector vold, long cellold, struct vector vnew, long cellnew,
            struct disc **cfirst, long **neighbour, struct vector box, struct disc *particle, 
            long testp, double **potential, long potential_length, double max_potential_distance, double dr,
            int cells_redundant, long npart);

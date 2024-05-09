@@ -5,7 +5,6 @@ long seed;
 
 int main()
 {
-    double diameter;             /* Diameter of disks */
     double kt;                  /* kt for use in metropolist algorithm */
     double **potential;       /* Array of external potential */
     double max_potential_distance; /* Max distance for potential */
@@ -30,7 +29,7 @@ int main()
     printf ("\n--------------------------\n\n");
 
     /* Get user parameters */
-    read_options(&npart, &box, &diameter, &nsweeps, &dump, &equilibrate, &periodic, &adjust, &trans, &kt);
+    read_options(&npart, &box, &nsweeps, &dump, &equilibrate, &periodic, &adjust, &trans, &kt);
 
     /* Set aside memory for the configuration */
     particle = (struct disc *)malloc(npart * sizeof(struct disc));
@@ -53,19 +52,19 @@ int main()
     load_potential(potential_length, potential, potential_file, &max_potential_distance, &dr);
     check_potential(potential, potential_length, max_potential_distance, dr);
 
-    generate_config(particle, box, npart, diameter);
+    generate_config(particle, box, npart);
 
     // init_config(npart, box, diameter, response, particle, fixed_dipole);
 
     printf ("Beginning cell set-up and equilibration\n\n");
-    simulate(npart, box, diameter, equilibrate, 0, adjust,
+    simulate(npart, box, equilibrate, 0, adjust,
         &trans, periodic, particle, potential, kt, max_potential_distance, dr, potential_length);
 
     printf ("Equilibrated step size: %.6le\n", trans.mx);
 
     printf ("Beginning main run\n\n");
     fflush (stdout);
-    simulate(npart, box, diameter, nsweeps, dump, 0,
+    simulate(npart, box, nsweeps, dump, 0,
         &trans, periodic, particle, potential, kt, max_potential_distance, dr, potential_length);
     printf("\n\nTrial Move Statistics:\n");
     printf("Moves accepted: %ld\n", trans.acc);

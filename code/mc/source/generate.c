@@ -1,7 +1,7 @@
 #include "global.h"
 #include "prototypes.h"
 
-void generate_config(struct disc *particle, struct vector box, long npart, double diameter) 
+void generate_config(struct disc *particle, struct vector box, long npart) 
 {
     double sx, sy;
     long squaresize;
@@ -18,7 +18,6 @@ void generate_config(struct disc *particle, struct vector box, long npart, doubl
     sx = box.x/(squaresize); 
     sy = box.y/(squaresize);
 
-    if (sx < diameter || sy < diameter) die ("Too many particles for square lattice in generate.c");
 
     // for (i = 0; i < squaresize; i++){
     //     for (j = 0; j < squaresize; j++) {
@@ -37,7 +36,6 @@ void generate_config(struct disc *particle, struct vector box, long npart, doubl
         particle[i].pos.y = (i % squaresize) * sy;
 
         particle[i].idx = i;
-        particle[i].diameter = diameter;
 
         particle[i].next = NULL;
         particle[i].prev = NULL;

@@ -3,7 +3,7 @@
 
 /*..............................................................................*/
 
-void simulate(long npart, struct vector box, double diameter,
+void simulate(long npart, struct vector box,
    long nsweeps, long dump, long adjust, struct disp *trans, long periodic,
    struct disc *particle, double **potential, double kt, double max_potential_distance, double dr, long potential_length)
 {
