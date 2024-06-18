@@ -62,7 +62,7 @@ void normalise_and_write_rdf(long *rdfhist,
     outfile = fopen("rdf.dat", "w");
     if (outfile == NULL) die ("Could not open rdf file for writing");
     for (i = 0; i < numbins; i++) {
-        fprintf(outfile, "%lf %lf\n",
+        fprintf(outfile, "%lf %.15lf\n",
                 (i+0.5)*dr,
                 normrdfhist[i]);
 

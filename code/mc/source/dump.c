@@ -85,8 +85,8 @@ void dumpconfigs_LAMMPS(FILE *outfile, struct disc *particle, struct vector box,
       fprintf(outfile, "%ld %d %lf %lf %lf\n",
       particle[i].idx,
       1,
-      (particle[i].pos.x+0.5),
-      (particle[i].pos.y+0.5),
+      (particle[i].pos.x),
+      (particle[i].pos.y),
       0.0);
    }
    
